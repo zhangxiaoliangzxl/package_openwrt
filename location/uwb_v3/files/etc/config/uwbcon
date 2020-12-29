@@ -1,0 +1,25 @@
+config uwbcon con
+    option disabled "1"
+    option printdata "0"
+    option tcp_nagle "0"
+    option ip "192.168.23.57"
+    option port "3069"
+    option debug_enable "0"    
+    option tty "/dev/uttyUWB"
+
+config uwbmod uwb
+    option panid ""
+    option ch ""
+    option pcode ""
+    option matid ""
+    option localid ""
+    option mode ""
+    option role ""
+    option palna ""
+    option coarsegain ""
+    option finegain ""
+    option dimension ""
+        
+config zigbeemod zigbee
+    option zigbee_enable "1"
+    option zigbee_power ""

@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+START=80
+
+start()
+{
+    UWB_MODE=`fw_printenv -c /etc/fw_env.config | grep uwb_mode | awk -F'=' '{print $2}'`
+    uci set uwbcon.uwb.dimension=$UWB_MODE
+    uci commit uwbcon
+}
+
+boot()
+{
+    start
+}

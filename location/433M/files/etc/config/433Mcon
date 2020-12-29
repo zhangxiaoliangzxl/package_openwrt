@@ -1,0 +1,6 @@
+config main con
+    option disabled "1"
+    option ip "192.168.23.57"
+    option port "3069" 
+    option tty "/dev/utty433M"
+

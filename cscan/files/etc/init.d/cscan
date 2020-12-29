@@ -1,0 +1,117 @@
+#!/bin/sh /etc/rc.common
+START=96
+
+#USE_PROCD=1
+
+rootp=/tmp/cscan
+
+do_config(){
+	interface=$(uci get cscan.@interface1[0].ifname)
+	echo "interface = ${interface}" >> ${rootp}/cscan.conf
+	apID=$(cat /sys/class/net/eth0/address | tr -d ':')
+	echo "apID = ${apID}" >> ${rootp}/cscan.conf
+	method=$(uci get cscan.scan.method)
+	echo "upmode = ${method}" >> ${rootp}/cscan.conf
+	#自动添加监控接口
+	echo "add_monitor" >> ${rootp}/cscan.conf
+	#上传间隔
+	node_timeout=$(uci get cscan.scan.node_timeout)
+	echo "node_timeout = ${node_timeout}" >> ${rootp}/cscan.conf
+	#探测类型
+	filter_mode=$(uci get cscan.@interface1[0].filter_mode)
+	echo "filter_mode = ${filter_mode}" >> ${rootp}/cscan.conf
+	#输入日志文件
+	#UDP TCP
+	if [[ "${method}" -eq 1 -o "${method}" -eq 2 ]]
+	then
+		echo "server_addr = $(uci get cscan.scan.sip)" >> ${rootp}/cscan.conf
+		echo "server_port = $(uci get cscan.scan.sport)" >> ${rootp}/cscan.conf
+		#进入采集模式
+		for mac in `echo $(uci -q get cscan.scan.filter_mac)`
+		do
+			echo "filter_mac = $mac" >> ${rootp}/cscan.conf
+		done
+	else
+		server_url=$(uci get cscan.scan.ifun)
+		echo "server_url = ${server_url}" >> ${rootp}/cscan.conf
+	fi
+	#全信道扫描：使能，切换间隔
+	if [[ "$(uci -q get cscan.@interface1[0].mode)" -eq 2 ]]
+	then
+		dwell=$(uci get cscan.@interface1[0].dwell)
+		echo "channel_scan = 1"	>> ${rootp}/cscan.conf
+		echo "channel_dwell = ${dwell}" >> ${rootp}/cscan.conf
+		#custom channels loop
+		for channeln in `echo $(uci -q get cscan.@interface1[0].channels)`
+		do
+			echo "channels = ${channeln}" >> ${rootp}/cscan.conf
+		done
+
+	else
+		echo "channel_scan = 0"	>> ${rootp}/cscan.conf
+		channel=$(uci -q get cscan.@interface1[0].channel)
+		[[ -n "${channel}" ]] && echo "channel = ${channel}" >> ${rootp}/cscan.conf
+	fi
+}
+
+init(){
+	local cardn
+	#must have usb probe
+	#[[ $(cat /proc/net/dev| awk '{print $1}' | grep wlan | wc -l) -ne 3 ]] && exit;
+	if [[ "$(uci get cscan.scan.probedev)" -eq 1 ]];then
+		cardn=3;
+	elif [[ "$(uci get cscan.scan.probedev)" -eq 2 ]];then
+		cardn=1;
+	else
+		cardn=2;
+	fi
+	[[ "$(ls /sys/class/ieee80211 -l| wc -l)" -ne "${cardn}" ]] && exit;
+	if [[ "$(uci get cscan.@interface1[0].disabled)" -ne 1 ]]
+	then
+		rm -rf ${rootp}
+		mkdir -p ${rootp}
+		cp /etc/cscan.conf ${rootp}/cscan.conf
+		#generate conf file
+		iw reg set CN
+		do_config
+	else
+		exit
+	fi
+	sleep 1
+}
+
+#service_triggers()
+#{
+#	procd_add_reload_trigger cscan
+#}
+
+#stop_service(){
+stop(){
+	rm -rf ${rootp}
+	killall cscan
+#	procd_kill cscan
+}
+
+#reload_service() {
+#	stop
+#	start
+#}
+
+#start_service()
+start()
+{
+	[[ "$(uci get cscan.@interface[0].disabled)" -eq 1 ]] && exit
+	init
+	sleep 3;
+#	procd_open_instance
+#	procd_set_param command /usr/sbin/cscan
+	/usr/sbin/cscan &
+#	procd_set_param respawn ${respawn_retry:-0}
+#	procd_close_instance
+}
+
+#restart()
+#{
+#	stop "$@"
+#	start "$@"
+#}

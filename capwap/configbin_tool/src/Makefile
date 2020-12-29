@@ -1,0 +1,9 @@
+.NOTPARALLEL:
+MODULE_OBJS = main.o
+
+MODULE_NAME = configbin
+
+.PHONY: all
+all:$(MODULE_NAME)
+$(MODULE_NAME): $(MODULE_OBJS)
+	$(CC) $(MODULE_OBJS) -o $@

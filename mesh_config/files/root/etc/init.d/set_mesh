@@ -1,0 +1,118 @@
+#!/bin/sh /etc/rc.common
+START=10
+
+DEFAULT_RSSI=-80
+
+#get radio type
+WLAN_AC=$(uci show wireless | grep 11a | awk -F'.' '{print $2}')
+
+WLAN_N="radio0"
+[ "$WLAN_AC" == "radio0" ] && {
+	WLAN_N="radio1" 
+}
+
+MESH_ID=$(uci get mesh.meshconf.meshid 2>/dev/null)
+MESH_RADIO=$(uci get mesh.meshconf.meshradio 2>/dev/null)
+MESH_RADIOID=$(uci show wireless | grep .radiotype= | grep $MESH_RADIO | awk -F'.' '{print $2}')
+
+MESHAP_RADIO="radio1"
+[ "$MESH_RADIOID" == "radio1" ] && {
+	MESHAP_RADIO="radio0"
+}
+
+start()
+{
+
+	#mesh
+	if [[ "$MESH_ID" != "" ]] && [[ "$MESH_RADIO" != "" ]] && [[ "$MESH_RADIOID" != "" ]]
+	then
+		uci set wireless.wmesh.device=$MESH_RADIOID
+		uci set wireless.wmesh.mesh_id=$MESH_ID
+	fi
+	
+	MESH_RSSI_THRESHOLD=$(uci get mesh.meshconf.meshrssithreshold 2>/dev/null)
+	if [[ "$MESH_RSSI_THRESHOLD" == "" ]]
+	then
+		MESH_RSSI_THRESHOLD=$DEFAULT_RSSI
+		uci set mesh.meshconf.meshrssithreshold=$MESH_RSSI_THRESHOLD
+	fi
+	
+	uci set wireless.wmesh.mesh_rssi_threshold=$MESH_RSSI_THRESHOLD
+	
+	mesh_enable=$(uci get mesh.meshconf.mesh_enable 2>/dev/null)
+	if [ -z "$mesh_enable" ];then
+		uci set mesh.meshconf.mesh_enable=1
+		uci set wireless.wmesh.disabled=0
+	elif [[ "$mesh_enable" == 1 ]];then
+		uci set mesh.meshconf.mesh_enable=1
+		uci set wireless.wmesh.disabled=0
+	else
+		uci set mesh.meshconf.mesh_enable=0
+		uci set wireless.wmesh.disabled=1
+	fi
+	
+	#radio channel
+	channel_2g=$(uci get mesh.meshconf.channel_2g 2>/dev/null)
+	channel_5g=$(uci get mesh.meshconf.channel_5g 2>/dev/null)
+	
+	[ -n "$channel_2g" ] && {
+		uci set wireless.$WLAN_N.channel=$channel_2g
+	}
+	
+	[ -n "$channel_5g" ] && {
+		uci set wireless.$WLAN_AC.channel=$channel_5g
+	}
+	
+	#meshap
+	uci set	wireless.meshap.device=$MESHAP_RADIO
+	
+	meshap_enable=$(uci get mesh.meshconf.meshap_enable 2>/dev/null)
+	if [ -z "$meshap_enable" ];then
+		uci set mesh.meshconf.meshap_enable=0
+		uci set wireless.meshap.disabled=1
+	elif [[ "$meshap_enable" == 1 ]];then
+		uci set mesh.meshconf.meshap_enable=1
+		uci set wireless.meshap.disabled=0
+	else
+		uci set mesh.meshconf.meshap_enable=0
+		uci set wireless.meshap.disabled=1
+	fi
+	
+	meshap_ssid=$(uci get mesh.meshconf.meshap_ssid 2>/dev/null)
+	[ -n "$meshap_ssid" ] && {
+		uci set wireless.meshap.ssid=$meshap_ssid
+	}
+	
+	meshap_encryption=$(uci get mesh.meshconf.meshap_encryption 2>/dev/null)
+	if [ -z "$meshap_encryption" ];then
+		uci set mesh.meshconf.meshap_encryption=1
+		uci set wireless.meshap.encryption=psk2+ccmp
+	elif [[ "$meshap_encryption" == 1 ]];then
+		uci set mesh.meshconf.meshap_encryption=1
+		uci set wireless.meshap.encryption=psk2+ccmp
+	else
+		uci set mesh.meshconf.meshap_encryption=0
+		uci set wireless.meshap.encryption=none
+	fi
+	
+	meshap_key=$(uci get mesh.meshconf.meshap_key 2>/dev/null)
+	[ -n "$meshap_key" ] && {
+		uci set wireless.meshap.key=$meshap_key
+	}
+	
+	uci commit wireless
+	uci commit mesh
+}
+
+restart()
+{
+	start
+	wifi
+}
+
+boot()
+{
+	start
+	wifi
+}
+

@@ -1,0 +1,17 @@
+if PACKAGE_blue_v2
+
+choice
+prompt "blue_v2 config for tty"
+
+default PACKAGE_blue_v2_only
+
+config PACKAGE_blue_v2_only
+	bool "blue_v2_only"
+
+config PACKAGE_blue_v2_coexistence
+	bool "blue_v2_coexistence"
+
+endchoice
+		
+endif
+

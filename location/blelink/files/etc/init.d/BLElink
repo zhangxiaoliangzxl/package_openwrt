@@ -1,0 +1,45 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	disabled=$(uci get blelink.common.disabled)
+	if [ "$disabled" == "1" ];then
+		exit
+	fi
+
+	if test -n &(pidof blelink);
+	then
+		echo "error! blelink is already existence!"
+	else
+		blelink &
+	fi
+
+	if test -n &(pidof blelink_pid);
+	then
+		echo "error! blelink_pid is already existence!"
+	else
+		/usr/sbin/blelink_pid >/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep blelink_pid | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep blelink_pid | awk '{print $1}')
+	fi
+
+	sleep 1;
+	
+	if [ -n "$(ps | grep -v grep | grep blelink | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep blelink | awk '{print $1}')
+	fi
+}
+
+restart()
+{
+	stop;
+	sleep 1;
+	start;
+}
+

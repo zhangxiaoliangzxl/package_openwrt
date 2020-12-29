@@ -1,0 +1,20 @@
+#!/bin/sh
+
+#echo "set vlan"
+#ssdk_sh vlan entry flush
+#ssdk_sh vlan entry create 1
+#ssdk_sh vlan member add 1 0 tagged 
+#ssdk_sh vlan member add 1 1 untagged 
+#ssdk_sh vlan member add 1 2 untagged 
+#ssdk_sh vlan member add 1 4 untagged 
+#ssdk_sh vlan member add 1 5 untagged 
+
+#vlan eth0.2 port 0t 3
+ssdk_sh vlan entry del 2
+ssdk_sh vlan entry create 2
+ssdk_sh vlan member add 2 0 tagged 
+ssdk_sh vlan member add 2 3 untagged 
+exit
+
+
+#ssdk_sh vlan entry show

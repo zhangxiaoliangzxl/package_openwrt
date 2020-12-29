@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+message Student
+{
+	required string id=1;
+	required string name=2;
+	required int32 age=3;
+}
+
+enum Grade
+{
+	PRIMARY=0;
+	JUNIOR=1;
+	SENIOR=2;
+	COLLEGE=3;
+}
+
+message School
+{
+	optional Grade grade=1[default=SENIOR];
+	required Student student=2;
+}

@@ -1,0 +1,48 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	disabled=$(uci get 433Mcon.con.disabled)
+	if [ "$disabled" == "1" ];then
+        	exit
+    	fi
+
+	if test -n &(pidof 433M);
+	then
+		echo "error! 433M is already existence!"
+	else
+		433M &
+	fi
+
+	if test -n &(pidof 433m_pid);
+	then
+		echo "error! 433m_pid is already existence!"
+	else
+		/usr/sbin/433m_pid >/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep 433m_pid | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep 433m_pid | awk '{print $1}')
+	fi
+
+	sleep 1;
+	
+	if [ -n "$(ps | grep -v grep | grep 433M | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep 433M | awk '{print $1}')
+	fi
+	
+	#rm -rf /tmp/uwbcmd_unix.domain
+	
+}
+
+restart()
+{
+	stop;
+	sleep 1;
+	start;
+}
+

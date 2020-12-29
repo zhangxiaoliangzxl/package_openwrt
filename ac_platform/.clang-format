@@ -1,0 +1,41 @@
+Language : Cpp
+BasedOnStyle : google
+AccessModifierOffset : -4
+IndentWidth : 4
+ColumnLimit : 120
+AllowShortIfStatementsOnASingleLine : false
+AllowShortFunctionsOnASingleLine : false
+AlignAfterOpenBracket : Align
+NamespaceIndentation : All
+AlignConsecutiveAssignments : false
+AlignConsecutiveDeclarations : false
+DerivePointerAlignment : false
+PointerAlignment : Right
+AlignOperands : true
+AlignTrailingComments : true
+MaxEmptyLinesToKeep : 1
+SpaceBeforeAssignmentOperators : true
+SpacesBeforeTrailingComments : 1
+BreakBeforeBinaryOperators : NonAssignment
+IndentCaseLabels : true
+Standard : C++11
+BreakBeforeBraces : Allman
+
+IncludeBlocks:   Preserve
+IncludeCategories:
+  - Regex:           '^\"cJSON'
+    Priority:        5
+  - Regex:           '^"'
+    Priority:        4
+  - Regex:           '^(<linux/)'
+    Priority:        3
+  - Regex:           '^(<sys/)'
+    Priority:        2
+  - Regex:           '^<'
+    Priority:        1
+IncludeIsMainRegex: '(Test)?$'
+
+#tab键盘的宽度
+TabWidth: 4
+UseTab: Always
+

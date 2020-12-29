@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#HW_TYPE=$(cat /etc/hw_type | awk -F '=' '{print $1}' | awk -F '_' '{print $6" "$7}')
+
+echo "9563_9886_mesh" > /etc/hw_type

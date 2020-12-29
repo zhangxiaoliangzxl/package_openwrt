@@ -1,0 +1,34 @@
+#!/bin/sh
+
+
+. /lib/network/config.sh
+. /lib/functions.sh
+
+
+ubus_get_ip_by_interface() {
+    local name=$1
+    local ipaddr=
+
+    ubus_call network.interface.$name status || return 0
+    json_select ipv4-address || return 0
+    json_select 1 || return 0
+    json_get_var ipaddr address || return 0
+    echo $ipaddr
+    return 1
+}
+
+interface=$1
+
+if [ "$interface" == "" ];then
+    exit
+fi
+
+ip=`ubus_get_ip_by_interface $interface`
+
+if [ "$?" != 1 ];then
+    exit
+else
+    echo $ip
+fi
+
+exit

@@ -1,0 +1,18 @@
+#! /bin/sh
+
+while true;
+do
+
+sleep 30
+
+var=$(ps | grep bluetooth | grep -v grep )
+
+if test -z "$var";
+then
+        bluetooth >/dev/null 2>/dev/null &
+else
+        echo "OK"
+
+fi
+
+done

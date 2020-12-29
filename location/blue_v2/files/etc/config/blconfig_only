@@ -1,0 +1,8 @@
+config bluetooth con
+	option disabled '1'
+	option printdata '0'
+	option port '60000'
+	option ip '192.168.23.112' 
+	option tty "/dev/uttyBLUE"
+	option baudrate "230400"
+

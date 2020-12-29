@@ -1,0 +1,36 @@
+config interface 'scan'
+	#是否使能探帧功能
+	option disabled '0'
+	#数据提交方式(1:UDP;2:TCP;3:HTTP;4:HTTPS)
+	option method '1'
+	#使用udp方式时服务器地址	
+	option sip '192.168.23.101'
+	#使用udp方式时服务器端口
+	option sport '8882'
+	#使用HTTP方式时服务器地址	
+	option ifun 'http://service.airocov.com/Location'
+	#是否有独立探针模块
+	option probedev	'2'
+	#list filter_mac 值不为空表示为采集模式
+	#上传间隔
+	option node_timeout '2'
+
+config interface1
+	option disabled '0'
+	#探帧使用的无线接口(物理接口)
+	option ifname 'phy0'
+	#探帧模式（1表示单信道，2表示多信道--循环内为当前硬件频段内）
+	option mode '2'
+	#单信道扫描时候设置，未设置为随机网卡信道
+	#option channel '11'
+	#多信道时设置信道最多6组
+	list channels '1'
+	list channels '6'
+	list channels '11'
+	list channels '149'
+	list channels '153'
+	list channels '157'
+	#多信道扫描切换间隔
+	option dwell '150'
+	#探测类型: STA/AP
+	option filter_mode	'STA'

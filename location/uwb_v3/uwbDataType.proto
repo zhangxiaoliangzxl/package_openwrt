@@ -1,0 +1,21 @@
+syntax = "proto3";
+package Uwbtype;
+ 
+option optimize_for = SPEED;
+ 
+message Tdoa {
+        uint32 version = 1;
+        uint32 magic   = 2;
+        string name    = 3;
+        string phone   = 4;
+        string email   = 5;
+}
+
+message Pdoa {
+        Tdoa tdoainfo = 1;
+        uint32 version   = 2;
+        uint32 magic     = 3;
+        string name      = 4;
+        string phone     = 5;
+        string email     = 6;
+}

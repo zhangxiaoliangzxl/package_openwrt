@@ -1,0 +1,80 @@
+#!/bin/sh
+
+. /lib/ar71xx.sh
+
+board=$(ar71xx_board_name)
+#echo $board > /dev/console
+
+###$1 usbport $2 ttyport
+ap147_set_ttyport()
+{
+	if [ $1 == "usb1" ];then
+		if [ -e "/dev/uttyUWB" ];then
+			rm -rf /dev/uttyUWB
+		fi
+		ln -s /dev/$2 /dev/uttyUWB
+		
+		if [ -e "/dev/uttyBLUE" ];then
+			rm -rf /dev/uttyBLUE
+		fi
+		ln -s /dev/$2 /dev/uttyBLUE
+		
+		if [ -e "/dev/utty433M" ];then
+			rm -rf /dev/utty433M
+		fi
+		ln -s /dev/$2 /dev/utty433M
+		
+	fi
+
+}
+
+###$1 usbport $2 ttyport
+ap152_set_ttyport()
+{
+	if [ $1 == "usb1" ];then
+		if [ -e "/dev/uttyUWB" ];then
+			rm -rf /dev/uttyUWB
+		fi
+		ln -s /dev/$2 /dev/uttyUWB
+	elif [ $1 == "usb2" ];then
+		if [ -e "/dev/uttyBLUE" ];then
+			rm -rf /dev/uttyBLUE
+		fi
+		ln -s /dev/$2 /dev/uttyBLUE
+		
+		if [ -e "/dev/utty433M" ];then
+			rm -rf /dev/utty433M
+		fi
+		ln -s /dev/$2 /dev/utty433M
+	
+	fi
+
+}
+
+if [ "$ACTION" = add ] && [ "$SUBSYSTEM" = tty ] && [ "$(echo $DEVNAME | grep ttyUSB)" != "" ]; then
+	cd /sys/class/tty/
+	tty_port=$DEVNAME
+	
+	if [ "$(find ./ -name $tty_port)" != "" ];then
+		usb_port=$(ls -l $tty_port | awk '{print $NF}' |awk -F'/' '{print $6}')
+		
+		echo $usb_port $tty_port > /dev/console
+		
+		case "$board" in
+			"ap147")
+				ap147_set_ttyport $usb_port $tty_port
+				;;
+			"ap152")
+				ap152_set_ttyport $usb_port $tty_port
+				;;
+			*)
+				echo "Unkown board type!" > /dev/console
+				;;
+		esac
+		
+	fi
+	
+fi
+
+
+

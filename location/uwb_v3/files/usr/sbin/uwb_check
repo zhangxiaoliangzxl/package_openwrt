@@ -1,0 +1,31 @@
+#!/bin/sh
+while true
+do
+
+sleep 30
+
+var=$(ps |grep UWB | grep -v grep )
+
+if test -z "$var"
+then
+        UWB &
+else
+        echo "OK"
+fi
+
+#check uwbcfg
+#matid=`cat /tmp/uwb_matid 2>/dev/null`
+#localid=`cat /tmp/uwb_localid 2>/dev/null`
+#getcfg=0
+#if [ "$matid" == "" ] && [ "$localid" == "" ];then
+#	getcfg=1
+#
+#elif [ "$matid" == "0" ] && [ "$localid" == "0" ];then
+#	getcfg=1
+#fi
+#
+#[ "$getcfg" == "1" ] && {
+#	UWB getvercfg
+#}
+
+done

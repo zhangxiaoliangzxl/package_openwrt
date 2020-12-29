@@ -1,0 +1,17 @@
+if PACKAGE_uwb_v2
+
+choice
+prompt "uwb config for tty"
+
+default PACKAGE_uwb_only
+
+config PACKAGE_uwb_only
+	bool "uwb_only"
+
+config PACKAGE_uwb_coexistence
+	bool "uwb_coexistence"
+
+endchoice
+		
+endif
+

@@ -1,0 +1,55 @@
+#!/bin/bash
+
+new_vlan(){
+	num=$(uci show network | grep =switch_vlan | wc -l)
+
+	uci add network switch_vlan
+	uci set network.@switch_vlan[$num].vlan=$1
+	uci set network.@switch_vlan[$num].device=switch0
+	uci set network.@switch_vlan[$num].ports="0t 1t"
+
+	num=$(uci show network | grep =interface | wc -l)
+	uci set network.lan$num=interface
+	uci set network.lan$num.ifname=eth0.$1
+	uci set network.lan$num.proto=dhcp
+
+	uci commit network
+}
+
+del_vlan() {
+	num=$(uci show network | grep =switch_vlan | wc -l)
+	inum=$(uci show network | grep =interface | wc -l)
+	i=0
+	while [[ $i -lt $num ]]
+	do
+		vlanid=$(uci get network.@switch_vlan[$i].vlan)
+		if [[ $vlanid -eq $1 ]]
+		then
+			uci delete network.@switch_vlan[$i]
+		fi
+		i=`expr $i + 1`
+	done
+	i=1
+	vlanid=
+	while [[ $i -lt $inum ]]
+	do
+		ifname=$(uci get network.@interface[$i].ifname)
+		vlanid=${ifname:5}
+		if [[ $vlanid -eq $1 ]]
+		then
+			uci delete network.@interface[$i]
+		fi
+		i=`expr $i + 1`
+	done
+
+	uci commit network
+}
+
+case $1 in
+	n)
+		new_vlan $2
+		;;
+	d) 
+		del_vlan $2
+		;;
+esac

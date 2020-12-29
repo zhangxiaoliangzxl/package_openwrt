@@ -1,0 +1,17 @@
+if PACKAGE_bluetooth2
+
+choice
+prompt "bluetooth2 config for tty"
+
+default PACKAGE_bluetooth2_only
+
+config PACKAGE_bluetooth2_only
+	bool "bluetooth2_only"
+
+config PACKAGE_bluetooth2_coexistence
+	bool "bluetooth2_coexistence"
+
+endchoice
+		
+endif
+

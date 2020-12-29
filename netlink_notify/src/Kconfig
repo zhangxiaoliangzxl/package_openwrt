@@ -1,0 +1,10 @@
+config NETLINK_NOTIFY
+	tristate "This is a module for netlink_notify"
+	default n
+	---help---
+	  This is a module for notify netlink status.
+
+	  To compile this code as a module, choose M here: the module will be
+	  called shortcut-fe.
+
+	  If unsure, say N.

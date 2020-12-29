@@ -1,0 +1,3 @@
+#!/bin/sh
+UWBMODE=$1
+fw_setenv -c /etc/fw_env.config uwb_mode $UWBMODE

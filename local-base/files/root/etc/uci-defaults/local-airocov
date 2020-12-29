@@ -1,0 +1,16 @@
+#!/bin/sh
+
+MTD_NAME=$(cat /proc/mtd | grep art | awk -F: '{print $1}')
+MAC=$(hexdump -C -n 6 /dev/$MTD_NAME | awk 'NR==1{print $5$6$7}' | tr a-z A-Z)
+
+uci batch <<-EOF
+    set system.@system[0].hostname=Mesh-$MAC
+	set system.@system[0].zonename=Asia/Shanghai
+	set system.@system[0].timezone=CST-8
+	commit system
+	
+EOF
+echo Mesh-$MAC > /proc/sys/kernel/hostname
+echo root:airocov | chpasswd
+exit 0
+

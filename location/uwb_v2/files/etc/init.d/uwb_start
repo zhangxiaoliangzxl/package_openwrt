@@ -1,0 +1,47 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	disabled=$(uci get uwbcon.con.disabled)
+	if [ "$disabled" == "1" ];then
+        	exit
+    	fi
+
+	if test -n &(pidof UWB);
+	then
+		echo "error! UWB is already existence!"
+	else
+		UWB &
+		/usr/sbin/getuwbcfg &
+	fi
+
+	if test -n &(pidof uwb_check);
+	then
+		echo "error! uwb_check is already existence!"
+	else
+		/usr/sbin/uwb_check >/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep uwb_check | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep uwb_check | awk '{print $1}')
+	fi
+
+	sleep 1;
+	
+	if [ -n "$(ps | grep -v grep | grep UWB | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep UWB | awk '{print $1}')
+	fi
+	
+}
+
+restart()
+{
+	stop;
+	sleep 1;
+	start;
+}
+

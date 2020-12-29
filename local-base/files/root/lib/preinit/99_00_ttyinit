@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/system.sh
+
+usbtty_config_init() {
+	uci set uwbcon.con.tty='/dev/uttyUWB'
+	uci del blconfig.con.USB_interface
+	uci set blconfig.con.tty='/dev/uttyBLUE'
+	uci set 433Mcon.con.tty='/dev/utty433M'
+	uci commit uwbcon
+	uci commit blconfig
+	uci commit 433Mcon
+}
+
+boot_hook_add preinit_main usbtty_config_init

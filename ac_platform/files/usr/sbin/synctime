@@ -1,0 +1,13 @@
+#! /bin/sh
+
+settime()
+{
+	date -s $1' '$2;
+}
+
+echo 'do synctime ' >> /tmp/debugAC
+s=`curl -3 -k -G 'https://www.airocov.com/Controller/Home/Acapi/synchronization'`;	
+tm=`date -d '@'$s '+%F %T'`;
+
+settime $tm;
+echo 'done synctime ' >> /tmp/debugAC

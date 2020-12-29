@@ -1,0 +1,58 @@
+#!/bin/sh
+
+#set mesh default config 
+
+#get radio type
+WLAN_AC=$(uci show wireless | grep 11a | awk -F'.' '{print $2}')
+
+WLAN_N="radio0"
+[ "$WLAN_AC" == "radio0" ] && {
+	WLAN_N="radio1" 
+}
+
+
+MESHAP_RADIO=$WLAN_N
+MESH_RADIO=$(uci get mesh.meshconf.meshradio)
+
+[ "$MESH_RADIO" == "2g" ] && {
+	MESHAP_RADIO=$WLAN_AC
+}
+
+MESHAP=$(uci show wireless | grep wireless.meshap=)
+
+if [ -z "$MESHAP" ];then
+	#wireless
+	uci batch <<-EOF
+		set wireless.meshap=wifi-iface
+		set	wireless.meshap.ssid='wirelessap'
+		set	wireless.meshap.device=$MESHAP_RADIO
+		set	wireless.meshap.mode='ap'
+		set	wireless.meshap.disabled='1'
+		set	wireless.meshap.network='lan'
+		set	wireless.meshap.ifname='wlan_meshap'
+		set	wireless.meshap.encryption='psk2+ccmp'
+		set	wireless.meshap.key='airocov20200427'
+		
+		commit wireless
+	EOF
+
+fi
+
+MESHCONFIG=$(uci show mesh | grep mesh.meshconf.channel_2g=)
+if [ -z "$MESHCONFIG" ];then
+	#mesh
+	uci batch <<-EOF
+		set mesh.meshconf.channel_2g='6'
+		set mesh.meshconf.channel_5g='149'
+		set mesh.meshconf.meshap_enable='0'
+		set mesh.meshconf.meshap_ssid='wirelessap'
+		set mesh.meshconf.meshap_encryption='1'
+		set mesh.meshconf.meshap_key='airocov20200427'
+		
+		commit mesh
+	EOF
+	
+fi
+
+exit 0
+

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+while true
+do
+	sleep 10
+	istrue=$(pidof ac_platform)
+	if [ -z "$istrue" ]
+	then
+		/etc/init.d/ac_platform restart &
+		exit
+	fi
+done
+

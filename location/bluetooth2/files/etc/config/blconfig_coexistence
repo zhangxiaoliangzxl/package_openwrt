@@ -1,0 +1,24 @@
+config bluetooth con
+		option disabled '1'
+		#端口
+		option port '60000'
+		option ip '192.168.23.112' 
+		#发送模式 (0: UDP   1:TCP  2:HTTP)
+		option send_model '0'
+		#http地址
+		option curl_data "http:..."
+		#采集模式 0:开启   1：关闭
+		option collet_model '0'
+		#采集mac
+		option collet_mac '0'
+		#是否显示 0：显示 1：不显示
+		option show_model '0'
+		#上传间隔
+		option time '1'
+		#接口
+		option USB_interface "/dev/ttyUSB1"
+		#获取数据间隔
+		option getdata_time '0'
+		#最强和最弱的信号强度
+		option min_rssi "-200"
+		option max_rssi "-10"

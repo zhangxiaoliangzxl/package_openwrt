@@ -1,0 +1,16 @@
+#!/bin/sh
+while true
+do
+
+sleep 30
+
+var=$( ps |grep 433M | grep -v grep )
+
+if test -z "$var"
+then
+        433M &
+else
+        echo "OK"
+fi
+
+done

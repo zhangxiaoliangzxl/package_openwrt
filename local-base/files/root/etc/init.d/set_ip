@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	DEFAULT_IP=""
+	DEFAULT_IP=`ip addr show br-lan | grep 192.168.11.11/`
+	if [ "$DEFAULT_IP" == "" ];then
+		ip addr add 192.168.11.11/24 dev br-lan
+	fi
+}
+
+
+

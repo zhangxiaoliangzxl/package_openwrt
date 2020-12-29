@@ -1,0 +1,11 @@
+config core meshconf
+	option mesh_enable '1'
+	option meshid 'airocovmesh_20190701'
+	option meshradio '5g'
+	option meshrssithreshold '-80'
+	option channel_2g '6'
+	option channel_5g '149'
+	option meshap_enable '0'
+	option meshap_ssid 'wirelessap'
+	option meshap_encryption '1'
+	option meshap_key 'airocov20200427'

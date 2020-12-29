@@ -1,0 +1,4 @@
+#!/bin/sh
+
+BUILD_DATE=$(sed -n '9p' /rom/etc/banner)
+echo $BUILD_DATE > /etc/build_version

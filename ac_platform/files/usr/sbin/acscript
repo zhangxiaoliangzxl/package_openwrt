@@ -1,0 +1,103 @@
+#!/bin/sh
+logfile=/tmp/debugAC
+
+getclients()
+{
+	wlans=$(ifconfig | grep "ath" | awk '{print $1}')
+
+	case $1 in
+        1)
+            rm -rf /tmp/ac/client
+            touch /tmp/ac/client
+            for wlan in $wlans
+	        do
+                wlanconfig $wlan list | awk 'NR>1{print $1" "$6}' >> /tmp/ac/client
+	        done
+            ;;
+        2)
+            rm -rf /tmp/test
+            touch /tmp/test
+            for wlan in $wlans
+	        do
+                wlanconfig $wlan list | awk 'NR>1{print $1" "$6}' >> /tmp/test
+	        done
+            ;;
+    esac
+
+}
+
+get_radio_clinum()
+{
+    isdisabled=$(uci -q get wireless.radio${1}.disabled)
+    if [[ -z $isdisabled ]] || [[ $isdisabled -eq 0 ]]
+    then
+        ssidc=$(uci show wireless | grep =radio$1 | wc -l)
+        i=0
+        while [[ $i -lt $ssidc ]]
+        do
+            if [[ $i -eq 0 ]]
+            then
+                ifname=wlan$1
+                cmd='iw dev '$ifname' station dump'
+            else
+                ifname=wlan$1-$i
+                cmd=$cmd' && iw dev '$ifname' station dump'
+            fi
+            i=`expr $i + 1`
+        done
+
+        num=$(eval '('$cmd')' | grep Station | wc -l 2>dev/null)
+        echo $num
+    fi
+}
+
+getclientnum()
+{
+    radionum=$(uci show wireless | grep =wifi-device | wc -l)
+    num=0
+    re=0
+    i=0
+    while [[ $i -lt $radionum ]]
+    do
+        re=$(get_radio_clinum $i)
+        num=`expr $num + $re`
+        i=`expr $i + 1`
+    done
+    echo $num
+}
+
+settime()
+{
+    date -s $1' '$2;
+}
+
+synctime()
+{
+    echo 'do synctime ' >> $logfile 
+    cloudinterface=$(uci -q get aconf.normal.cloudinterface)
+    cmd="curl -3 -k -G '"$cloudinterface"/synchronization'"
+    #echo $cmd
+    s=$(eval $cmd)
+    #echo $s
+    tm=`date -d '@'$s '+%F %T'`;
+    #echo $tm
+
+    settime $tm;
+    echo 'done synctime ' >> $logfile
+}
+
+case $1 in
+    cmdtime)
+        synctime
+        ;;
+    cmdclients1)
+        getclients 1
+        ;;
+    cmdclients2)
+        getclients 2
+        ;;
+    cmdclientnum)
+        getclientnum
+        ;;
+esac
+

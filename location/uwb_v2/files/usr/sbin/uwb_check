@@ -1,0 +1,15 @@
+#!/bin/sh
+while true
+do
+
+var=$(ps |grep UWB | grep -v grep )
+
+if test -z "$var"
+then
+        UWB &
+else
+        echo "OK"
+fi
+
+sleep 30
+done

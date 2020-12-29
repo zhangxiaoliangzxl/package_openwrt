@@ -1,0 +1,37 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+logfile="/tmp/alarm_services.log"
+statefile="/tmp/alarm_state"
+
+start()
+{
+    if [[ 0 -ne $(uci -q get alarm.main.disabled) ]] && [[ -n $(uci -q get alarm.main.disabled) ]]
+    then
+        exit -1
+    fi
+
+    alarm_services &
+    
+    if test -n &(pidof alarm_pid);
+	then
+		echo "alarm_pid existence!"
+	else
+		alarm_pid >/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep alarm_pid | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep alarm_pid | awk '{print $1}')
+	fi
+
+	if [ -n "$(ps | grep -v grep | grep alarm_services | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep alarm_services | awk '{print $1}')
+	fi
+
+    rm -rf $logfile
+    rm -rf $statefile
+}
+

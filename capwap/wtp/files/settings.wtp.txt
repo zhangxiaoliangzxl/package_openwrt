@@ -1,0 +1,13 @@
+# Settings File for WTP. Lines beginning with # and blank lines will be ignored
+#
+
+#
+<MAX_TXPOWER>   23
+
+<WAN_SWITCH_PORT>       3
+<WAN_IFNAME>    eth0.2
+
+<IF_NAME>    eth0
+<WTP_ETH_IF_NAME>	eth0
+<RADIO_0_IF_NAME>	wifi0
+<WTP_HOSTAPD_UNIX_PATH> /tmp/wtp_ipc_hostapd

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+uci batch <<-EOF
+	del uwbcon.uwb
+	del uwbcon.zigbee
+	del uwbcon.con.debug_enable
+	del uwbcon.con.debug_serverip
+	del uwbcon.con.debug_serverport
+	del uwbcon.con.printdata
+	del uwbcon.con.stm32hex
+	del uwbcon.con.hexdebug
+	
+	commit uwbcon
+EOF
+
+exit 0
+

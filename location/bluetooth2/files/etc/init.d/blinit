@@ -1,0 +1,54 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	disabled=$(uci get blconfig.con.disabled)
+
+	if [ "$disabled" == "1" ];then
+		exit
+	fi
+
+	if test -n &(ls /tmp/* | grep blutoothi | tr -d '\n')
+	then
+		mkdir /tmp/blutooth 
+	else
+		echo "file existence!"
+	fi
+
+	if test -n &(pidof bluetooth2);
+	then
+		echo "error! bluetooth existence!"
+	else
+		bluetooth2 >/dev/null 2>/dev/null &
+	fi
+
+	if test -n &(pidof bluetooth);
+	then
+		echo "error! bluetooth existence!"
+	else
+		/usr/sbin/bluetooth>/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+
+	if test -n &(ls /tmp/* | grep blutooth | tr -d '\n')
+	then
+		rm /tmp/blutooth  -fr
+	else
+		echo "no such file"
+	fi
+
+	if [ -n "$(ps | grep -v grep | grep bluetooth | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep bluetooth | awk '{print $1}')
+	fi
+	
+	sleep 1
+	
+	if [ -n "$(ps | grep -v grep | grep bluetooth2 | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep bluetooth2 | awk '{print $1}')
+	fi
+}
+

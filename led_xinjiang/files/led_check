@@ -1,0 +1,16 @@
+#!/bin/sh
+#for check and set led
+
+while true
+do
+
+    var=$(ps | grep check_led | grep -v grep )
+
+    if test -z "$var"
+    then
+        check_led &
+        echo "led status error, restart!"
+    fi
+
+    sleep 10
+done

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+MTD_NAME=$(cat /proc/mtd | grep art | awk -F: '{print $1}')
+factory_reset(){
+#rm -r /overlay/* 2>/dev/null
+echo y | firstboot
+}
+
+
+set_mac(){
+rm -rf /tmp/art.bin
+dd if=/dev/$MTD_NAME of=/tmp/art.bin
+MAC=$1
+setmac --mac -w $MAC
+mtd write /tmp/art.bin art
+rm -rf /tmp/art.bin
+READ_MAC=$(hexdump -C -n 6 /dev/$MTD_NAME | awk 'NR==1{print $2$3$4$5$6$7}' | tr a-z A-Z)
+NAME=$(hexdump -C -n 6 /dev/$MTD_NAME | awk 'NR==1{print $5$6$7}' | tr a-z A-Z)
+
+echo "write $MAC, read $READ_MAC"
+if [ "$MAC" == "$READ_MAC" ];then
+	uci batch <<-EOF
+    	set system.@system[0].hostname=Mesh-$NAME
+		commit system
+	EOF
+	echo "set mac succes!"
+else
+	echo "set mac fail!"
+fi
+}
+
+read_mac(){
+READ_MAC=$(hexdump -C -n 6 /dev/$MTD_NAME | awk 'NR==1{print $2$3$4$5$6$7}' | tr a-z A-Z)
+echo "$READ_MAC"
+}
+
+case "$1" in
+reset) factory_reset;;
+set_mac) set_mac $2;;
+read_mac) read_mac;;
+help) echo "factest (reset|read_mac|set_mac 0011223344BB)";;
+*) echo "factest help";;
+esac
+

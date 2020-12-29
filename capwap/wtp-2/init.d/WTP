@@ -1,0 +1,53 @@
+#!/bin/sh /etc/rc.common
+
+# Copyright (C) 2016 datang.com
+
+START=99
+STOP=10
+
+CARD=`cat /usr/capwap/config.wtp  | grep AP_CARD_COUNT | cut -d " " -f 2`
+
+#set fit/fat apmode
+/usr/capwap/fit_fat.sh
+
+if [ -d "/tmp/capwap" ];then
+    echo "/tmp/capwap exist"
+else
+    mkdir -p /tmp/capwap
+fi
+
+start() {
+	if [ `uci get wtp.cfg.enable` -eq 0 ];then
+        exit
+    fi
+    
+    if [ "$(lsmod | grep cloud_wlan)" == "" ];then
+        insmod $(find /lib -name cloud_wlan.ko)
+    fi
+
+	pid=`pgrep WTP`
+	if [ -z "$pid" ];then
+                if [ $CARD == 1 ];then
+                cd /usr/capwap
+                ./WTP ./ &
+                else if [ $CARD == 2 ];then
+                cd /usr/capwap
+                ./WTP ./ &
+                sleep 3
+                ./WTP ./ &
+                fi
+                fi
+	fi
+}
+
+stop() {
+	pid=`pgrep WTP`
+	if [ ! -z "$pid" ]; then
+		kill -9 $pid
+	fi
+}
+
+restart() {
+	stop
+	start
+}

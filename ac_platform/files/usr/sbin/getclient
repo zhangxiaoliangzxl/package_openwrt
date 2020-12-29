@@ -1,0 +1,3 @@
+#! /bin/sh
+
+iw dev wlan0 station dump | awk '{if(NR%18 == 1){printf("%s ", $2)}else if(NR%18 == 10){print $3}}' > /tmp/ac/client

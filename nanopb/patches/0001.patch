@@ -1,0 +1,18 @@
+diff -Nuar nanopb-0.4.4/CMakeLists.txt nanopb-0.4.4-new/CMakeLists.txt
+--- nanopb-0.4.4/CMakeLists.txt	2020-11-25 20:19:36.000000000 +0800
++++ nanopb-0.4.4-new/CMakeLists.txt	2020-12-28 11:54:42.257520699 +0800
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.12)
++cmake_minimum_required(VERSION 2.8.9)
+ 
+ project(nanopb C)
+ 
+@@ -7,7 +7,7 @@
+ 
+ string(REPLACE "nanopb-" "" nanopb_VERSION ${nanopb_VERSION_STRING})
+ 
+-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
++option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+ option(BUILD_STATIC_LIBS "Build static libraries" ON)
+ 
+ option(nanopb_BUILD_RUNTIME "Build the headers and libraries needed at runtime" ON)

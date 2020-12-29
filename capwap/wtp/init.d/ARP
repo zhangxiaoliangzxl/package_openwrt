@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+# Copyright (C) 2016 datang.com
+
+START=99
+STOP=10
+
+
+start() {
+	echo 512 > /proc/sys/net/ipv4/neigh/default/gc_thresh1
+	echo 2048 > /proc/sys/net/ipv4/neigh/default/gc_thresh2
+	echo 10240 > /proc/sys/net/ipv4/neigh/default/gc_thresh3
+}

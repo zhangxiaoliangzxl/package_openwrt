@@ -1,0 +1,93 @@
+#!/bin/sh
+
+#set mesh default config 
+
+#get radio type
+WLAN_AC=$(uci show wireless | grep 11a | awk -F'.' '{print $2}')
+
+WLAN_N="radio0"
+[ "$WLAN_AC" == "radio0" ] && {
+	WLAN_N="radio1" 
+}
+
+#wireless
+uci batch <<-EOF
+	set wireless.$WLAN_N.disabled='0'
+	set wireless.$WLAN_N.htmode='HT40'
+	set wireless.$WLAN_N.channel='6'
+	set wireless.$WLAN_N.radiotype='2g'
+	del wireless.default_$WLAN_N
+	
+	set wireless.$WLAN_AC.disabled='0'
+	set wireless.$WLAN_AC.channel='149'
+	set wireless.$WLAN_AC.htmode='VHT80'
+	set wireless.$WLAN_AC.radiotype='5g'
+	del wireless.default_$WLAN_AC
+	
+	set wireless.wmesh=wifi-iface
+	set wireless.wmesh.device='$WLAN_AC'
+	set wireless.wmesh.ifname='wlan_mesh'
+	set wireless.wmesh.mode='mesh'
+	set wireless.wmesh.network='mesh'
+	set wireless.wmesh.mesh_id='airocovmesh_20190701'
+	set wireless.wmesh.mesh_ttl='1'
+	set wireless.wmesh.mcast_rate='24000'
+	set wireless.wmesh.mesh_fwding='0'
+	set wireless.wmesh.mesh_rssi_threshold='1'
+	set wireless.wmesh.disassoc_low_ack='0'
+	set wireless.wmesh.encryption='sae'
+	set wireless.wmesh.key='airocov20190701xxx'
+	
+	commit wireless
+EOF
+
+#interface
+uci batch <<-EOF
+	set network.lan.ifname='eth0.1 eth0.2 bat0'
+	set network.lan.proto='dhcp'
+	del network.lan.ipaddr
+	del network.lan.netmask
+	del network.lan.ip6assign
+
+	del network.wan
+	del network.wan6
+
+	set network.mesh=interface
+	set network.mesh.proto='batadv_hardif'
+	set network.mesh.master='bat0'
+	set network.mesh.mtu='1536'
+	set network.mesh.ifname='wlan_mesh'
+
+	set network.bat0=interface
+	set network.bat0.proto='batadv'
+	set network.bat0.routing_algo='BATMAN_IV'
+	set network.bat0.aggregated_ogms='1'
+	set network.bat0.ap_isolation='1'
+	set network.bat0.bonding='0'
+	set network.bat0.fragmentation='1'
+	set network.bat0.gw_mode='off'
+	set network.bat0.log_level='0'
+	set network.bat0.orig_interval='1000'
+	set network.bat0.bridge_loop_avoidance='1'
+	set network.bat0.distributed_arp_table='1'
+	set network.bat0.multicast_mode='1'
+	set network.bat0.multicast_fanout='16'
+	set network.bat0.network_coding='0'
+	set network.bat0.hop_penalty='30'
+	set network.bat0.isolation_mark='0x00000000/0x00000000'
+
+	del dhcp.lan
+	del dhcp.wan
+	del dhcp.odhcpd
+	
+	commit network
+	commit dhcp
+EOF
+
+	/etc/init.d/network reload
+	/etc/init.d/dnsmasq
+	wifi
+	
+	
+exit 0
+

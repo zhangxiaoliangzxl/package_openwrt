@@ -1,0 +1,9 @@
+config remoteac 'normal'
+	option disabled '0'
+    #encryption 若为1则使用https加密数据传送,若为0则使用http
+	option encrypton '1'
+    option cloudinterface ''
+
+config clientac 'client'
+	option rssi	'-70'
+	option disabled '1'

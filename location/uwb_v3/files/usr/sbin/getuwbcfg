@@ -1,0 +1,9 @@
+#!/bin/sh
+
+sleep 10
+UWB getvercfg 
+sleep 1
+UWB getrole
+echo "get uwbcfg end"
+exit
+

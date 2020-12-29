@@ -1,0 +1,16 @@
+#!/bin/sh
+while true
+do
+
+sleep 30
+
+var=$(ps |grep alarm_services | grep -v grep )
+
+if test -z "$var"
+then
+        alarm_services &
+else
+        echo "OK"
+fi
+
+done

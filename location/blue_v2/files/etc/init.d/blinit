@@ -1,0 +1,65 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start()
+{
+	disabled=$(uci get blconfig.con.disabled)
+
+	if [ "$disabled" == "1" ];then
+		exit
+	fi
+
+	if [ ! -d "/tmp/blue" ];
+	then
+		mkdir /tmp/blue
+	else
+		echo "file existence!"
+	fi
+
+	if [ "$(pidof bluetooth)" != "" ];
+	then
+		echo "error! bluetooth existence!"
+	else
+		bluetooth >/dev/null 2>/dev/null &
+	fi
+
+	if [ "$(pidof blue_check)" != "" ];
+	then
+		echo "error! blue_check existence!"
+	else
+		/usr/sbin/blue_check>/dev/null 2>/dev/null &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep blue_check | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep blue_check | awk '{print $1}')
+	fi
+	
+	sleep 1
+	
+	if [ -n "$(ps | grep -v grep | grep bluetooth | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep bluetooth | awk '{print $1}')
+	fi
+	
+	if [ ! -d "/tmp/blue" ];
+	then
+		echo "not need del file"
+	else
+		rm -rf /tmp/blue
+	fi
+	
+	if [ -e "/var/run/blue_daemon.pid" ];
+	then
+		rm -rf /var/run/blue_daemon.pid
+	fi
+}
+
+restart()
+{
+	stop;
+	sleep 1;
+	start;
+}
+

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+
+echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+MTD_NAME=$(cat /proc/mtd | grep art | awk -F: '{print $1}')
+MAC=$(hexdump -C -n 6 /dev/$MTD_NAME | awk 'NR==1{print $5$6$7}' | tr a-z A-Z)
+
+uci batch <<-EOF
+    set system.@system[0].hostname=AP-$MAC
+	commit system                                                                             
+EOF
+echo AP-$MAC > /proc/sys/kernel/hostname
+BUILD_DATE=$(sed -n '9p' /rom/etc/banner)
+sed  -i '9c '$BUILD_DATE'' /etc/banner_xinjiang
+mv /etc/banner_xinjiang /etc/banner
+
+sed -i 's/Airocov/AP/g' /usr/lib/lua/luci/view/themes/ATMaterial/header.htm
+sed -i 's/Airocov/AP/g' /usr/lib/lua/luci/view/admin_status/index.htm
+
+rm -rf /usr/sbin/factest
+mv /usr/sbin/factest_xinjiang /usr/sbin/factest
+rm -rf /lib/wifi/qcawifi.sh
+mv /lib/wifi/qcawifi.sh.xinjiang /lib/wifi/qcawifi.sh
+#uci set wireless.wifi0.disabled=1
+#uci set wireless.wifi1.disabled=1
+#uci set wireless.@wifi-iface[0].ssid=wifi-2g                                                                              
+#uci set wireless.@wifi-iface[1].ssid=wifi-5g 
+#uci commit wireless
+#wifi &
+exit 0

@@ -1,0 +1,10 @@
+config main common
+    option disabled "1"
+    #option tcp_nagle "0"
+    option debug "0"
+    option debug_mode "0"
+    option serverhost "192.168.23.57"
+    option serverport "3069"
+    option tty "/dev/uttyBLUE"
+    option baudrate "230400"
+

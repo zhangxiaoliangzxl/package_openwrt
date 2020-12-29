@@ -1,0 +1,12 @@
+#!/bin/sh
+while true
+do
+	sleep 30
+	var=$(ps |grep blelink | grep -v grep )
+	if test -z "$var"
+	then
+		    blelink &
+	else
+		    echo "OK"
+	fi
+done

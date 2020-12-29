@@ -1,0 +1,31 @@
+#!/bin/sh /etc/rc.common
+START=96
+
+start()
+{
+	if test -n &(pidof check_led);
+	then
+		echo "check_led is already run!"
+	else
+		check_led &
+	fi
+
+	if test -n &(pidof led_check);
+	then
+		echo "led_ckeck is already run!"
+	else
+		led_check &
+	fi
+}
+
+stop()
+{
+	if [ -n "$(ps | grep -v grep | grep check_led | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep check_led | awk '{print $1}')
+	fi
+	
+	if [ -n "$(ps | grep -v grep | grep led_check | awk '{print $1}')" ];then
+		kill -9  $(ps | grep -v grep | grep led_check | awk '{print $1}')
+	fi
+}
+

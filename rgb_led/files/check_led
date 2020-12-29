@@ -1,0 +1,207 @@
+#!/bin/sh
+#for check and set led
+
+WIFI0="ath0 ath01 ath02 ath03 ath04 ath05 ath06 ath07"
+WIFI1="ath1 ath11 ath12 ath13 ath14 ath15 ath16 ath17"
+
+led_status=""
+blink_status=""
+
+set_red_led()
+{
+    if [ "$led_status" != "red" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        led_status=red
+    fi
+
+    if [ "$1" == "1" ] && [ "$blink_status" != "red_blink" ];then
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/trigger
+        blink_status=red_blink
+    elif [ "$1" == "0" ] && [ "$blink_status" != "red" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        blink_status=red
+    fi
+ 
+}
+
+set_blue_led()
+{
+    if [ "$led_status" != "blue" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        led_status=blue
+    fi
+    
+    if [ "$1" == "1" ] && [ "$blink_status" != "blue_blink" ];then
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/trigger
+        blink_status=blue_blink
+    elif [ "$1" == "0" ] && [ "$blink_status" != "blue" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        blink_status=blue
+    fi
+}
+
+set_green_led()
+{
+    if [ "$led_status" != "green" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        led_status=green
+    fi
+
+    if [ "$1" == "1" ] && [ "$blink_status" != "green_blink" ];then
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/trigger
+        blink_status=green_blink
+    elif [ "$1" == "0" ] && [ "$blink_status" != "green" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        blink_status=green
+    fi
+}
+
+set_led_blink()
+{
+    if [ "$led_status" != "blink" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        
+        led_status=blink
+    fi 
+    
+    if [ "$1" == "1" ] && [ "$blink_status" != "blink_blink" ];then
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/trigger
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/trigger
+        echo "timer" > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/trigger
+        blink_status=blink_blink
+    elif [ "$1" == "0" ] && [ "$blink_status" != "blink" ];then
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        echo 0 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+       
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:red:sys/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:blue:2g/brightness
+        echo 1 > /sys/devices/platform/leds-gpio/leds/airocov:green:5g/brightness
+        blink_status=blink
+    fi
+       
+
+}
+
+check_iface_status()
+{
+    iface_status=$(ifconfig | grep $1)
+    if [ "$iface_status" == "" ];then
+        echo down
+    else
+        info=$(iwconfig $1 | grep Access | awk '{print $6}')
+        if [ "$info" == "Not-Associated" ];then
+            echo down
+        else
+            echo up
+        fi
+    fi
+}
+
+check_led_status()
+{
+    #check wifi0
+    wlan0_status=
+    for ifname in $WIFI0;
+    do
+    	if [ "$(check_iface_status $ifname)" == "up" ];then
+        	wlan0_status=$wlan0_status" "$ifname
+        fi
+    done
+    
+    #check wifi1
+    wlan1_status=
+    for ifname in $WIFI1;
+    do
+    	if [ "$(check_iface_status $ifname)" == "up" ];then
+        	wlan1_status=$wlan1_status" "$ifname
+        fi
+    done
+    
+    #check sta for wifi0
+    sta0=0
+    if [ "$wlan0_status" != "" ];then
+    	for iface in $wlan0_status;
+    	do
+    		if [ "$(wlanconfig $iface list)" != "" ];then
+            	sta0=1
+        	fi	
+    	done
+    	wlan0_status="up"
+	else
+		wlan0_status="down"
+    fi
+    
+    #check sta for wifi1
+    sta1=0
+    if [ "$wlan1_status" != "" ];then
+        for iface in $wlan1_status;
+    	do
+    		if [ "$(wlanconfig $iface list)" != "" ];then
+            	sta1=1
+        	fi	
+    	done
+    	wlan1_status="up"
+    else
+    	wlan1_status="down"
+    fi
+
+	#set led status
+    if [ "$wlan0_status" == "down" ] && [ "$wlan1_status" == "down" ];then
+        set_red_led 1;
+    elif [ "$wlan0_status" == "down" ];then
+        if [ "$sta1" == "1" ];then
+            set_green_led 1;
+        else
+            set_green_led 0;
+        fi
+    elif [ "$wlan1_status" == "down" ];then
+        if [ "$sta0" == "1" ];then
+            set_blue_led 1;
+        else
+            set_blue_led 0;
+        fi
+    else
+         if [ "$sta0" == "1" ] || [ "$sta1" == "1" ];then
+            set_led_blink 1;
+        else
+            set_led_blink 0;
+        fi
+    fi
+
+}
+
+set_default_led()
+{
+    set_red_led 0;
+    sleep 1;
+
+    set_blue_led 0;
+    sleep 1;
+
+    set_green_led 0;
+    sleep 1;
+
+    led_status=default
+}
+
+set_default_led;
+
+while true;
+do
+    check_led_status;
+    sleep 5;
+done
+
+

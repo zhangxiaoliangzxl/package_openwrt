@@ -1,0 +1,75 @@
+/*************************************************************************
+>  File Name: test_up.c
+>  Author: zxl
+>  Mail:
+>  Created Time: 2020-12-24 17:59:34
+*************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "datatype.h"
+
+#define MAX_MSG_LEN 1024
+
+static size_t read_buff(unsigned max_length, uint8_t *out)
+{
+    size_t cur_len = 0, nread = 0;
+
+    while ((nread = fread(out + cur_len, 1, max_length - cur_len, stdin)) != 0)
+    {
+        cur_len += nread;
+        if (cur_len == max_length)
+        {
+            fprintf(stderr, "max message length exceeded\n");
+            exit(1);
+        }
+    }
+
+    return cur_len;
+}
+
+int main( )
+{
+    /*initing*/
+    School *scl = NULL;
+    // school__init(scl);
+
+    uint8_t buf[MAX_MSG_LEN];
+    /*unpacking*/
+    size_t msg_len = read_buff(MAX_MSG_LEN, buf);
+    scl            = school__unpack(NULL, msg_len, buf);
+    if (scl == NULL)
+    {
+        fprintf(stderr, "error unpacking incoming message\n");
+        exit(1);
+    }
+    /*result*/
+    if (scl->has_grade)
+    {
+        switch (scl->grade)
+        {
+        case 0:
+            printf("grade:primary\n");
+            break;
+        case 1:
+            printf("grade:junior\n");
+            break;
+        case 2:
+            printf("grade:senior\n");
+            break;
+        case 3:
+            printf("grade:college\n");
+            break;
+        default:
+            printf("grade unknow\n");
+        }
+    }
+    printf("id:%s\n", scl->student->id);
+    printf("name:%s\n", scl->student->name);
+    printf("age:%d\n", scl->student->age);
+
+    school__free_unpacked(scl, NULL);
+    return 0;
+}

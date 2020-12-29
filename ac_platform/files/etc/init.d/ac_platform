@@ -1,0 +1,54 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+rootp=/tmp/ac
+runfile=/tmp/ac/AcIsRun
+status=/tmp/ac/status
+logfile="/tmp/debugAC"
+start()
+{
+    if [[ 0 -ne $(uci -q get aconf.normal.disabled) ]] && [[ -n $(uci -q get aconf.normal.disabled) ]]
+    then
+    	echo "ac is disabled, exit"
+        exit
+    fi
+    
+    if [[ "$(uci -q get aconf.normal.autofind 2>/dev/null)" != "" ]]
+    then
+    	if [[ 1 -ne $(uci -q get aconf.normal.autofind 2>/dev/null) ]] && [[ -z $(uci -q get aconf.normal.cloudinterface 2>/dev/null) ]]
+    	then
+    		echo "autofind is disabled, but ac_server addr is null, exit"
+        	exit
+    	fi
+    fi
+
+	killall ac_platform
+
+    rm -rf ${rootp}
+    mkdir -p ${rootp}
+    mkdir -p ${status}
+    echo 0 > ${status}/network
+    echo 0 > ${status}/uwb
+    echo 0 > ${status}/blue
+
+    touch ${runfile} 
+
+    ac_platform &
+    if [ -z "$(ps | grep -v grep | grep ac_protect | awk '{print $1}')" ];then
+		sleep 1
+		ac_protect &
+	fi
+}
+
+stop()
+{
+    if [ -n "$(ps | grep -v grep | grep ac_protect | awk '{print $1}')" ];then
+        kill -9  $(ps | grep -v grep | grep ac_protect | awk '{print $1}')
+    fi
+    
+    sleep 1
+    killall ac_platform
+    
+    rm -rf $logfile
+    rm -rf ${rootp}
+}

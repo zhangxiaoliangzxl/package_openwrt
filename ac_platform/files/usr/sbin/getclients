@@ -1,0 +1,19 @@
+#!/bin/bash
+ssidc=$(uci show wireless | grep =wifi-iface | wc -l)
+for ((i=0;i<$ssidc;i++))
+do
+	if (($i==0))
+	then
+		ifname=wlan0
+		cmd='iw dev '$ifname' station dump'
+	else
+		ifname=wlan0-$i
+		cmd=$cmd' && iw dev '$ifname' station dump'
+	fi
+	#echo $ifname
+	#echo $cmd
+done
+#cmd=$cmd" | awk '{if(NR%18 == 1){printf("%s ", $2)}else if(NR%18 == 10){print $3}}'"
+#echo $cmd
+eval $cmd | awk '{if(NR%18 == 1){printf("%s ", $2)}else if(NR%18 == 10){print $3}}' > /tmp/test
+

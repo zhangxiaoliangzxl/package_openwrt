@@ -1,0 +1,25 @@
+#!/bin/sh
+# Copyright (C) 2006-2017 ysprogram@163.com
+
+. /lib/functions.sh
+
+CSCAN=`which cscan`
+
+start_cscan() {
+	/etc/init.d/cscan restart
+}
+
+stop_cscan() {
+	/etc/init.d/cscan stop
+}
+
+CSCAN_RUNNING=`ps  | grep $CSCAN | grep -v grep`
+
+case "${ACTION:-ifup}" in
+	ifup)
+		[ -z "$CSCAN_RUNNING" ] && start_cscan
+	;;
+	ifdown)
+		[ -n "$CSCAN_RUNNING" ] && stop_cscan
+	;;
+esac

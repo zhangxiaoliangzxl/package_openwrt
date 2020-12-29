@@ -1,0 +1,11 @@
+#! /bin/sh
+
+touch /tmp/ac/AcIsRun
+istrue=$(pidof ac_protect)
+if [ -z $istrue ] 
+then
+	ac_protect &
+	echo 'the ac_protect is running.' >> /tmp/debugAC
+else
+	echo 'the ac_protect is already running.' >> /tmp/debugAC
+fi
