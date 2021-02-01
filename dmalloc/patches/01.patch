@@ -1,0 +1,24 @@
+diff -Nuar dmalloc-5.6.5/conf.h dmalloc-5.6.5-new/conf.h
+--- dmalloc-5.6.5/conf.h	2021-01-28 17:16:26.203531800 +0800
++++ dmalloc-5.6.5-new/conf.h	2021-01-28 17:21:49.865189465 +0800
+@@ -45,7 +45,7 @@
+  * system, you should see the INTERNAL_MEMORY_SPACE setting in the
+  * settings.h file which is created from the settings.dist file.
+  */
+-#define HAVE_SBRK 1
++#define HAVE_SBRK 0
+ 
+ /*
+  * (void *)mmap(...) is another heap-memory allocation routine that
+diff -Nuar dmalloc-5.6.5/configure dmalloc-5.6.5-new/configure
+--- dmalloc-5.6.5/configure	2021-01-28 17:16:21.623518305 +0800
++++ dmalloc-5.6.5-new/configure	2021-01-28 17:13:09.207301559 +0800
+@@ -4753,7 +4753,7 @@
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking basic-block size" >&5
+ $as_echo_n "checking basic-block size... " >&6; }
+-ac_cv_page_size=0
++ac_cv_page_size=12
+ if test $ac_cv_page_size = 0; then
+    if test "$cross_compiling" = yes; then :
+    ac_cv_page_size=0
